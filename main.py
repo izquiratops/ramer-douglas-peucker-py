@@ -1,25 +1,36 @@
+import sys
+import douglas
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
-import numpy as np
+
+# python main.py 0.55
+epsilon = sys.argv[1]
+
+def setup_figure(raw_data, douglas_data):
+  # Creates two subplots and unpacks the output array immediately
+  fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True)
+  fig = matplotlib.pyplot.gcf()
+  size = 8
+  fig.set_size_inches(2*size, 1*size, forward=True)
+  fig.canvas.set_window_title('Series Reducer')
+
+  # fig.suptitle('Series Reducer')
+  ax1.set_title('Raw Points')
+  ax1.plot(raw_data[0], raw_data[1], 'bo', raw_data[0], raw_data[1], 'k')
+  ax2.set_title('Ramer–Douglas–Peucker')
+  ax2.plot(douglas_data[0], douglas_data[1], 'bo', douglas_data[0], douglas_data[1], 'k')
 
 def f(t):
-    return np.exp(-t) * np.cos(2*np.pi*t)
+    return np.exp(-0.5*t) * np.cos(np.pi*t)
 
-x = np.arange(0.0, 5.0, 0.05)
-y = f(x)
+def generate_data():
+  raw_x = np.arange(0.0, 5.0, 0.05)
+  raw_y = f(raw_x)
+  return np.stack((raw_x, raw_y))
 
-# Creates two subplots and unpacks the output array immediately
-fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
-fig = matplotlib.pyplot.gcf()
-size = 8
-fig.set_size_inches(2*size, 1*size, forward=True)
-fig.canvas.set_window_title('Series Reducer')
-
-# fig.suptitle('Series Reducer')
-ax1.set_title('Raw Points')
-ax1.plot(x, y, 'bo', x, y, 'k')
-ax2.set_title('Ramer–Douglas–Peucker')
-ax2.plot(x, y, 'bo', x, y, 'k')
-
+raw_data = generate_data()
+douglas_data = douglas.douglify(raw_data, epsilon)
+setup_figure(raw_data, douglas_data)
 plt.show()
